@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Regulation Toolkit</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #FAF7F2;
+      font-family: Georgia, 'Times New Roman', serif;
+      padding-bottom: 60px;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #3D2B1F 0%, #5C3D2E 50%, #3D2B1F 100%);
+      padding: 48px 32px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(196,168,130,0.15) 0%, transparent 60%),
+                  radial-gradient(circle at 80% 20%, rgba(127,160,181,0.1) 0%, transparent 50%);
+    }
+    .header-eyebrow {
+      color: #C4A882; font-size: 11px; letter-spacing: 4px;
+      text-transform: uppercase; margin-bottom: 12px;
+      position: relative;
+    }
+    .header h1 {
+      color: #FAF7F2; font-size: clamp(26px, 5vw, 40px);
+      font-weight: normal; letter-spacing: 1px; line-height: 1.2;
+      position: relative;
+    }
+    .header-sub {
+      color: rgba(250,247,242,0.65); font-size: 15px;
+      margin-top: 12px; font-style: italic;
+      max-width: 480px; margin-left: auto; margin-right: auto;
+      position: relative;
+    }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 20px 24px 12px; justify-content: center;
+      position: sticky; top: 0;
+      background: #FAF7F2; z-index: 10;
+      border-bottom: 1px solid rgba(61,43,31,0.08);
+    }
+    .filter-btn {
+      padding: 7px 16px; border-radius: 20px;
+      border: 2px solid rgba(61,43,31,0.15);
+      background: transparent; color: #5C3D2E;
+      font-size: 12px; letter-spacing: 0.5px;
+      cursor: pointer; font-family: Georgia, serif;
+      transition: all 0.2s ease;
+    }
+    .filter-btn.active {
+      color: #FAF7F2; font-weight: bold;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px; padding: 28px 24px;
+      max-width: 1100px; margin: 0 auto;
+    }
+
+    /* CARD */
+    .card {
+      background: #fff; border-radius: 12px;
+      border: 1px solid rgba(61,43,31,0.1);
+      box-shadow: 0 2px 12px rgba(61,43,31,0.06);
+      cursor: pointer; overflow: hidden;
+      transition: all 0.25s ease;
+    }
+    .card:hover { box-shadow: 0 6px 24px rgba(61,43,31,0.1); }
+    .card.open { transform: translateY(-2px); }
+
+    .card-bar { height: 5px; opacity: 0.85; }
+    .card-body { padding: 20px 22px; }
+
+    .card-top { display: flex; align-items: flex-start; gap: 14px; }
+    .card-icon { font-size: 28px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+    .card-info { flex: 1; }
+    .card-category {
+      font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 4px;
+      font-family: Georgia, serif;
+    }
+    .card-title {
+      color: #2C1810; font-size: 17px;
+      font-weight: normal; margin-bottom: 3px; letter-spacing: 0.3px;
+    }
+    .card-subtitle {
+      color: #8A7060; font-size: 12px; font-style: italic;
+    }
+    .card-arrow {
+      font-size: 18px; opacity: 0.6; flex-shrink: 0;
+      margin-top: 4px; transition: transform 0.25s ease;
+      line-height: 1;
+    }
+    .card.open .card-arrow { transform: rotate(180deg); }
+
+    /* EXPANDED */
+    .card-expanded {
+      display: none;
+      margin-top: 18px; padding-top: 18px;
+      animation: fadeIn 0.2s ease;
+    }
+    .card.open .card-expanded { display: block; }
+
+    .card-description {
+      color: #4A3728; font-size: 14px;
+      line-height: 1.7; margin-bottom: 16px;
+    }
+    .card-prompt {
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+    }
+    .card-prompt p {
+      color: #2C1810; font-size: 13px;
+      line-height: 1.6; font-style: italic;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center; padding: 8px 24px 0;
+      color: #A08878; font-size: 12px;
+      font-style: italic; letter-spacing: 0.5px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <p class="header-eyebrow">Memoir Writing Support</p>
+  <h1>Your Regulation Toolkit</h1>
+  <p class="header-sub">Tools to help you go deep — and find your way back out</p>
+</div>
+
+<div class="filter-bar" id="filterBar"></div>
+<div class="grid" id="grid"></div>
+<p class="footer">Tap any card to open it &nbsp;·&nbsp; You went in, and you can come back out</p>
+
+<script>
+const tools = [
+  {
+    category: "Move It Through", icon: "🚶‍♀️", color: "#C4A882",
+    title: "Bilateral Movement", subtitle: "Brain integration through rhythm",
+    description: "Walk with awareness of your alternating arms and feet. Swim. Drum your hands alternately on your knees. This is the same mechanism as EMDR — it integrates brain hemispheres and helps process stuck emotions.",
+    prompt: "Try 10 minutes of walking, feeling each arm swing, each foot land."
+  },
+  {
+    category: "Move It Through", icon: "🤲", color: "#C4A882",
+    title: "Shaking", subtitle: "Somatic discharge",
+    description: "Stand and shake your hands, arms, and body for 60 seconds. It sounds strange but it is a legitimate somatic discharge tool. The body stores what the mind cannot yet process — shaking helps release it.",
+    prompt: "Set a timer for 60 seconds. Just shake. Let it be undignified."
+  },
+  {
+    category: "Regulate the Nervous System", icon: "🌬️", color: "#8FA98C",
+    title: "Extended Exhale Breathing", subtitle: "Vagus nerve activation",
+    description: "Breathe in for 4 counts, out for 6–8 counts. The extended exhale — not just deep breathing — activates the parasympathetic nervous system. It is the biological signal that the threat has passed.",
+    prompt: "In for 4. Out for 8. Repeat 5 times. Feel your shoulders drop."
+  },
+  {
+    category: "Regulate the Nervous System", icon: "🌡️", color: "#8FA98C",
+    title: "Temperature Regulation", subtitle: "Insula and dive reflex activation",
+    description: "Warmth (bath, warm drink) activates the insula — the brain's self-awareness center — and softens emotional state. Cold water on the face activates the dive reflex and slows heart rate within seconds.",
+    prompt: "Overwhelmed? Cold water on your face. Need to soften? Wrap both hands around something warm."
+  },
+  {
+    category: "Regulate the Nervous System", icon: "🎵", color: "#8FA98C",
+    title: "Humming or Singing", subtitle: "Vagal tone through vibration",
+    description: "Humming activates the vagus nerve through vibration in the throat and chest, signaling safety to the nervous system. Even humming a hymn quietly for two minutes has measurable calming effect on the autonomic nervous system.",
+    prompt: "Hum one song. Feel the vibration in your chest. That is medicine."
+  },
+  {
+    category: "Create Safety", icon: "👁️", color: "#9B8BB4",
+    title: "Orienting Response", subtitle: "Brainstem safety signal",
+    description: "Slowly turn your head and move your eyes around the room. Name five things you can see. This interrupts the freeze response at a neurological level — it tells your brainstem, not just your thinking mind, that you are not in danger.",
+    prompt: "Slowly look left. Right. Up. Down. Name what you see. You are here. You are safe."
+  },
+  {
+    category: "Create Safety", icon: "🐾", color: "#9B8BB4",
+    title: "Co-regulation", subtitle: "Nervous system to nervous system",
+    description: "Physical contact or eye contact with a safe person — or a pet — is one of the most direct ways to restore safety. You do not have to talk. The nervous system regulates through co-regulation with another safe nervous system.",
+    prompt: "Sit with someone safe. Or your dog. You don't have to say a word."
+  },
+  {
+    category: "Create Safety", icon: "🏖️", color: "#9B8BB4",
+    title: "The Lake Visualization", subtitle: "Your personal safe place",
+    description: "You are at the lake. Early morning. The sand shifts beneath your feet. The air smells like water and green things. A safe companion walks beside you. You do not have to perform. You are just yourself, at the lake, held.",
+    prompt: "Close your eyes. Three slow breaths. Walk to the water's edge. Stay as long as you need."
+  },
+  {
+    category: "Express Without Crafting", icon: "🎨", color: "#C47E6B",
+    title: "Raw Creative Expression", subtitle: "Emotion through color and movement",
+    description: "Not art — just movement on paper. Scribbling with color, drawing without purpose. Research shows creative expression provides healthy alternatives to numbing by creating a bridge back to emotional awareness.",
+    prompt: "Grab whatever color feels right. Scribble. No one will see it. Let the hand lead."
+  },
+  {
+    category: "Express Without Crafting", icon: "🎤", color: "#C47E6B",
+    title: "Voice Memos", subtitle: "Unedited verbal discharge",
+    description: "Talk out loud to your phone without it needing to be coherent or ready for anyone else. This is a raw dumping ground. Speaking what is inside, even messily, discharges what writing cannot always reach.",
+    prompt: "Press record. Say whatever comes. Stop when it feels empty. Delete it if you want."
+  },
+  {
+    category: "Express Without Crafting", icon: "📄", color: "#C47E6B",
+    title: "Pennebaker Writing", subtitle: "Cortisol reduction through uncensored writing",
+    description: "Write about what came up for 15–20 minutes with no editing, no audience, no craft. Research by James Pennebaker shows this measurably reduces cortisol. Think of it as wringing out a wet cloth — not writing a letter.",
+    prompt: "Set a timer for 15 minutes. Write what happened in your body today. No sentences required."
+  },
+  {
+    category: "Anchor in Spirit", icon: "⚓", color: "#7A9DB5",
+    title: "One-Phrase Anchor", subtitle: "Repeated truth as nervous system signal",
+    description: "A single short phrase spoken out loud — not a long prayer, just an anchor. Something repeated until the body hears it, not just the mind. Choose something true, simple, and yours.",
+    prompt: "\"I am not alone. I am not nineteen. I am held.\" Say it out loud. Say it again."
+  },
+  {
+    category: "Anchor in Spirit", icon: "🌅", color: "#7A9DB5",
+    title: "Grounding Intention Before Writing", subtitle: "Adult self in the room first",
+    description: "Before you open the memoir, take 5 minutes to arrive as the adult. A warm drink. A short prayer. One sentence of written intention: what you are going into and why. Signal to your nervous system that you are the adult holding the child — not the child alone.",
+    prompt: "Write one sentence: 'Today I am going into ___ because ___. I can go there and come back.'"
+  },
+  {
+    category: "Anchor in Spirit", icon: "🚪", color: "#7A9DB5",
+    title: "Closing Ritual", subtitle: "Marking the exit",
+    description: "Literally close the notebook or laptop and say something out loud that marks the ending. Then move into your lake visualization. The goal is a clear signal to your body: we went in, and now we are coming back out.",
+    prompt: "Close it. Say out loud: 'I am leaving that room now. I am safe. I am back.'"
+  }
+];
+
+const categories = [...new Set(tools.map(t => t.category))];
+const categoryColors = {};
+tools.forEach(t => { categoryColors[t.category] = t.color; });
+
+let activeCategory = "All";
+
+function renderFilters() {
+  const bar = document.getElementById("filterBar");
+  bar.innerHTML = "";
+  ["All", ...categories].forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn" + (activeCategory === cat ? " active" : "");
+    btn.textContent = cat;
+    const col = categoryColors[cat] || "#3D2B1F";
+    if (activeCategory === cat) {
+      btn.style.background = col;
+      btn.style.borderColor = col;
+    }
+    btn.onclick = () => { activeCategory = cat; renderFilters(); renderCards(); };
+    bar.appendChild(btn);
+  });
+}
+
+function renderCards() {
+  const grid = document.getElementById("grid");
+  const filtered = activeCategory === "All" ? tools : tools.filter(t => t.category === activeCategory);
+  grid.innerHTML = "";
+  filtered.forEach((tool, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.borderColor = "rgba(61,43,31,0.1)";
+    card.innerHTML = `
+      <div class="card-bar" style="background:${tool.color}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-icon">${tool.icon}</div>
+          <div class="card-info">
+            <div class="card-category" style="color:${tool.color}">${tool.category}</div>
+            <div class="card-title">${tool.title}</div>
+            <div class="card-subtitle">${tool.subtitle}</div>
+          </div>
+          <div class="card-arrow" style="color:${tool.color}">▾</div>
+        </div>
+        <div class="card-expanded">
+          <p class="card-description">${tool.description}</p>
+          <div class="card-prompt" style="background:${tool.color}18; border-left:3px solid ${tool.color}">
+            <p>${tool.prompt}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    card.onclick = () => {
+      const isOpen = card.classList.contains("open");
+      card.classList.toggle("open", !isOpen);
+      card.style.borderColor = !isOpen ? tool.color : "rgba(61,43,31,0.1)";
+      card.style.boxShadow = !isOpen
+        ? `0 8px 32px rgba(61,43,31,0.12), 0 0 0 2px ${tool.color}22`
+        : "0 2px 12px rgba(61,43,31,0.06)";
+    };
+    grid.appendChild(card);
+  });
+}
+
+renderFilters();
+renderCards();
+</script>
+</body>
+</html>
